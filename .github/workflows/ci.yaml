@@ -1,39 +1,27 @@
-name: Build and Deploy to S3
-
 on:
   push:
-    branches:
-      - main
 
 env:
-  AWS_REGION: ap-northeast-1
-  AWS_ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID}}:role/github-actions-role
-  AWS_TARGET_S3_BUCKET: ${{ secrets.AWS_TARGET_S3_BUCKET }}
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
+      - uses: actions/checkout@v1
+      - uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume:  arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-role
+          aws-region: ap-northeast-1
       - name: Install Dependencies
         run: npm install
         working-directory: ./frontend
 
-      - name: Build
+      - name: build
         run: npm run build
         working-directory: ./frontend
 
-      - name: Verify Build Output
-        run: ls -la ./frontend/build
-
-      - name: Deploy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
-          aws s3 sync --region ap-northeast-1 ./frontend/build s3://github-actions-study --delete
+      - name: deploy
+        run: aws s3 cp --recursive --region ap-northeast-1 dist/ s3://github-actions-study
