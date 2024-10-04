@@ -5,9 +5,17 @@ on:
     branches:
       - main
 
+env:
+  AWS_REGION: ap-northeast-1
+  AWS_ROLE_ARN: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID}}:role/github-actions-role
+  AWS_TARGET_S3_BUCKET: ${{ secrets.AWS_TARGET_S3_BUCKET }}
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v2
