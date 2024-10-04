@@ -22,12 +22,6 @@ jobs:
       - name: Verify Build Output
         run: ls -la ./frontend/build
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID}}:role/github-actions-role
-          aws-region: ap-northeast-1
-
       - name: Deploy to S3
         run: |
           aws s3 sync ./frontend/build/client s3://github-actions-study --delete
