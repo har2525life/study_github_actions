@@ -34,3 +34,7 @@ jobs:
       - name: Deploy to S3
         run: |
           aws s3 sync ./frontend/build/client s3://study-github-actions --delete
+
+      - name: Clear cache
+        run: |
+          aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_ID}} --paths "/*"
