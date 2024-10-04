@@ -1,32 +1,33 @@
 name: Build and Deploy to S3
-
 on:
-  # mainブランチへのプッシュをトリガーにする
   push:
     branches:
       - main
-
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@main # リポジトリをチェックアウト
+        uses: actions/checkout@v2
 
-      - name: Install Dependecies
+      - name: Install Dependencies
         run: npm install
         working-directory: ./frontend
-      
+
       - name: Build
         run: npm run build
         working-directory: ./frontend
 
-      - name: Deploy
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Verify Build Output
+        run: ls -la ./frontend/build
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::123456789012:role/github-actions-role
+          aws-region: ap-northeast-1
+
+      - name: Deploy to S3
         run: |
-          aws s3 sync --region ap-northeast-1 ./frontend/build s3://github-actions-study --delete
-          aws s3 cp --recursive --region ap-northeast-1 ./frontend/build s3://github-actions-study
-        working-directory: ./frontend
+          aws s3 sync ./frontend/build s3://github-actions-study --delete
