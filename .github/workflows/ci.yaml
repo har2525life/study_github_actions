@@ -15,10 +15,10 @@ jobs:
         uses: actions/checkout@main # リポジトリをチェックアウト
 
       - name: Install Dependecies
-        run: num install
+        run: npm install
       
       - name: Build
-        run: num run build
+        run: npm run build
 
       - name: Deploy
         env:
